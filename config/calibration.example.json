@@ -1,0 +1,45 @@
+{
+  "description": "Example Arduino Uno servo-angle calibration. Replace these placeholders with measured values.",
+  "units": "servo_degrees",
+  "servo_order": ["base", "shoulder", "elbow", "wrist_rotate", "wrist_tilt", "gripper"],
+  "gripper_rule": "servo 6 is clamped to 0..90; 90 is closed, lower values open the gripper",
+  "cells": {
+    "0": {
+      "approach_pose": [70, 75, 105, 90, 85, 90],
+      "touch_pose": [70, 80, 110, 90, 80, 90]
+    },
+    "1": {
+      "approach_pose": [90, 75, 105, 90, 85, 90],
+      "touch_pose": [90, 80, 110, 90, 80, 90]
+    },
+    "2": {
+      "approach_pose": [110, 75, 105, 90, 85, 90],
+      "touch_pose": [110, 80, 110, 90, 80, 90]
+    },
+    "3": {
+      "approach_pose": [70, 90, 100, 90, 85, 90],
+      "touch_pose": [70, 95, 105, 90, 80, 90]
+    },
+    "4": {
+      "approach_pose": [90, 90, 100, 90, 85, 90],
+      "touch_pose": [90, 95, 105, 90, 80, 90]
+    },
+    "5": {
+      "approach_pose": [110, 90, 100, 90, 85, 90],
+      "touch_pose": [110, 95, 105, 90, 80, 90]
+    },
+    "6": {
+      "approach_pose": [70, 105, 95, 90, 85, 90],
+      "touch_pose": [70, 110, 100, 90, 80, 90]
+    },
+    "7": {
+      "approach_pose": [90, 105, 95, 90, 85, 90],
+      "touch_pose": [90, 110, 100, 90, 80, 90]
+    },
+    "8": {
+      "approach_pose": [110, 105, 95, 90, 85, 90],
+      "touch_pose": [110, 110, 100, 90, 80, 90]
+    }
+  }
+}
+

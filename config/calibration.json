@@ -1,0 +1,177 @@
+{
+  "description": "Working Arduino Uno servo-angle calibration. Replace these placeholders with measured values.",
+  "units": "servo_degrees",
+  "servo_order": [
+    "base",
+    "shoulder",
+    "elbow",
+    "wrist_rotate",
+    "wrist_tilt",
+    "gripper"
+  ],
+  "gripper_rule": "servo 6 is clamped to 0..90; 90 is closed, lower values open the gripper",
+  "cells": {
+    "0": {
+      "approach_pose": [
+        5,
+        104,
+        107,
+        90,
+        90,
+        90
+      ],
+      "touch_pose": [
+        3,
+        102,
+        90,
+        123,
+        90,
+        90
+      ]
+    },
+    "1": {
+      "approach_pose": [
+        5,
+        84,
+        107,
+        90,
+        90,
+        90
+      ],
+      "touch_pose": [
+        3,
+        85,
+        90,
+        125,
+        90,
+        90
+      ]
+    },
+    "2": {
+      "approach_pose": [
+        5,
+        64,
+        107,
+        90,
+        90,
+        90
+      ],
+      "touch_pose": [
+        3,
+        66,
+        90,
+        123,
+        90,
+        90
+      ]
+    },
+    "3": {
+      "approach_pose": [
+        60,
+        108,
+        152,
+        145,
+        90,
+        90
+      ],
+      "touch_pose": [
+        41,
+        108,
+        138,
+        152,
+        90,
+        90
+      ]
+    },
+    "4": {
+      "approach_pose": [
+        60,
+        85,
+        158,
+        145,
+        90,
+        90
+      ],
+      "touch_pose": [
+        48,
+        84,
+        146,
+        152,
+        90,
+        90
+      ]
+    },
+    "5": {
+      "approach_pose": [
+        60,
+        60,
+        152,
+        145,
+        90,
+        90
+      ],
+      "touch_pose": [
+        41,
+        58,
+        138,
+        152,
+        90,
+        90
+      ]
+    },
+    "6": {
+      "approach_pose": [
+        90,
+        123,
+        180,
+        166,
+        90,
+        90
+      ],
+      "touch_pose": [
+        60,
+        122,
+        159,
+        174,
+        90,
+        90
+      ]
+    },
+    "7": {
+      "approach_pose": [
+        90,
+        86,
+        180,
+        173,
+        90,
+        90
+      ],
+      "touch_pose": [
+        68,
+        88,
+        167,
+        180,
+        90,
+        90
+      ]
+    },
+    "8": {
+      "approach_pose": [
+        90,
+        51,
+        180,
+        166,
+        90,
+        90
+      ],
+      "touch_pose": [
+        60,
+        51,
+        159,
+        174,
+        90,
+        90
+      ]
+    }
+  }
+}
