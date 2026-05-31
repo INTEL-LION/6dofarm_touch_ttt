@@ -19,3 +19,5 @@ Thumbs.db
 # Local runtime logs
 *.log
 
+# Local comparison/archive copies
+archive/
