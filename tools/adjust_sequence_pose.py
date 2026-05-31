@@ -22,9 +22,11 @@ from robot_arm import (  # noqa: E402
 
 SERVO_NAMES = ("1 Base", "2 Shoulder", "3 Elbow", "4 Wrist Rotate", "5 Wrist Tilt", "6 Gripper")
 STEP_CHOICES = {
+    6: "06 board transit",
     9: "09 release",
-    10: "10 vertical lift",
-    11: "11 clear",
+    10: "10 release",
+    11: "11 vertical lift",
+    12: "12 clear",
 }
 
 
@@ -98,7 +100,7 @@ class ArduinoConnection:
 class AdjustSequencePoseApp:
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
-        self.root.title("Adjust Step 10 Pose")
+        self.root.title("Adjust Sequence Pose")
         self.config = json.loads(ROBOT_CONFIG_PATH.read_text(encoding="utf-8"))
         self.calibration_data = json.loads(CALIBRATION_PATH.read_text(encoding="utf-8"))
         self.arduino = ArduinoConnection(
@@ -110,7 +112,7 @@ class AdjustSequencePoseApp:
         self.cell_var = tk.IntVar(value=0)
         self.step_var = tk.IntVar(value=10)
         self.angles_var = tk.StringVar(value="Not connected")
-        self.status_var = tk.StringVar(value="Connect first. Then go to step 10 and jog motors.")
+        self.status_var = tk.StringVar(value="Connect first. Then go to a sequence step and jog motors.")
         self._build_ui()
 
     def _build_ui(self) -> None:
@@ -170,10 +172,10 @@ class AdjustSequencePoseApp:
             tk.END,
             "Recommended ring-avoidance flow:\n"
             "1. Choose cell 0, 1, or 2.\n"
-            "2. Choose step 10 and click Go to Selected Step.\n"
-            "3. Jog only the joints needed to lift away from the ring. Keep Base nearly unchanged if possible.\n"
-            "4. Save as Exit Pose if this is the immediate vertical lift after release.\n"
-            "5. Jog higher/safer, then Save as Clear Pose before returning home.\n"
+            "2. Choose step 6 to inspect the new board-transit waypoint.\n"
+            "3. Choose step 11 to adjust the vertical lift after release.\n"
+            "4. Jog only the joints needed. Keep Base nearly unchanged near the ring if possible.\n"
+            "5. Save as Exit Pose for immediate lift, or Clear Pose before returning home.\n"
             "6. Test with run_debug_cell_sequence_real.bat before using the game UI.\n",
         )
         note.configure(state=tk.DISABLED)
@@ -263,4 +265,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

@@ -9,6 +9,7 @@ from robot_arm import (
     MockRobotArm,
     build_pick_and_place_sequence,
     format_servo_command,
+    with_servo_angle,
 )
 
 
@@ -40,9 +41,10 @@ class RobotFlowTest(unittest.TestCase):
         )
         self.assertEqual(sequence[1], ("piece approach open", [1, 2, 3, 4, 5, 40.0]))
         self.assertEqual(sequence[3], ("piece pick close", [6, 7, 8, 9, 10, 90.0]))
-        self.assertEqual(sequence[5], ("cell hover holding", [11, 12, 13, 14, 15, 90.0]))
-        self.assertEqual(sequence[8], ("cell release", [16, 17, 18, 19, 20, 40.0]))
-        self.assertEqual(sequence[9], ("cell vertical lift open", [11, 12, 13, 14, 15, 40.0]))
+        self.assertEqual(sequence[5], ("board transit holding", [1, 90.0, 3, 4, 5, 90.0]))
+        self.assertEqual(sequence[6], ("cell hover holding", [11, 12, 13, 14, 15, 90.0]))
+        self.assertEqual(sequence[9], ("cell release", [16, 17, 18, 19, 20, 40.0]))
+        self.assertEqual(sequence[10], ("cell vertical lift open", [11, 12, 13, 14, 15, 40.0]))
 
     def test_release_lift_uses_exit_pose_without_hover_twist(self):
         sequence = build_pick_and_place_sequence(
@@ -55,8 +57,8 @@ class RobotFlowTest(unittest.TestCase):
             cell_place_pose=[5, 104, 107, 90, 90, 90],
             cell_exit_pose=[5, 110, 110, 90, 90, 90],
         )
-        self.assertEqual(sequence[8], ("cell release", [5, 104, 107, 90, 90, 40.0]))
-        self.assertEqual(sequence[9], ("cell vertical lift open", [5, 110, 110, 90, 90, 40.0]))
+        self.assertEqual(sequence[9], ("cell release", [5, 104, 107, 90, 90, 40.0]))
+        self.assertEqual(sequence[10], ("cell vertical lift open", [5, 110, 110, 90, 90, 40.0]))
         self.assertNotIn(("cell lift open", [25, 110, 110, 90, 90, 40.0]), sequence)
 
     def test_release_path_uses_clear_pose_before_home(self):
@@ -71,8 +73,12 @@ class RobotFlowTest(unittest.TestCase):
             cell_exit_pose=[5, 110, 110, 90, 90, 90],
             cell_clear_pose=[5, 140, 140, 90, 90, 90],
         )
-        self.assertEqual(sequence[10], ("cell clear open", [5, 140, 140, 90, 90, 40.0]))
-        self.assertEqual(sequence[11], ("home", [90, 90, 90, 90, 90, 90]))
+        self.assertEqual(sequence[11], ("cell clear open", [5, 140, 140, 90, 90, 40.0]))
+        self.assertEqual(sequence[12], ("home", [90, 90, 90, 90, 90, 90]))
+
+    def test_board_transit_sets_servo2_to_90_before_cell_hover(self):
+        transit = with_servo_angle([75, 163, 125, 180, 63, 90], 1, 90.0, 90.0)
+        self.assertEqual(transit, [75, 90.0, 125, 180, 63, 90.0])
 
     def test_servo_command_clamps_gripper_to_closed_limit(self):
         command = format_servo_command([90, 91, 92, 93, 94, 120])

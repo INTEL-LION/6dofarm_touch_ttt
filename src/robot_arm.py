@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ROBOT_CONFIG_PATH = ROOT / "config" / "robot.json"
 OPEN_GRIPPER_ANGLE = 40.0
 CLOSED_GRIPPER_ANGLE = 90.0
+BOARD_TRANSIT_SERVO2_ANGLE = 90.0
 
 
 @dataclass
@@ -221,6 +222,7 @@ def build_pick_and_place_sequence(
         ("piece pick open", with_gripper(piece_pick_pose, OPEN_GRIPPER_ANGLE)),
         ("piece pick close", with_gripper(piece_pick_pose, CLOSED_GRIPPER_ANGLE)),
         ("piece lift", with_gripper(piece_lift_pose, CLOSED_GRIPPER_ANGLE)),
+        ("board transit holding", with_servo_angle(piece_lift_pose, 1, BOARD_TRANSIT_SERVO2_ANGLE, CLOSED_GRIPPER_ANGLE)),
         ("cell hover holding", with_gripper(cell_hover_pose, CLOSED_GRIPPER_ANGLE)),
         ("cell approach holding", with_gripper(cell_approach_pose, CLOSED_GRIPPER_ANGLE)),
         ("cell place holding", with_gripper(cell_place_pose, CLOSED_GRIPPER_ANGLE)),
@@ -235,6 +237,20 @@ def with_gripper(pose: list[float], gripper_angle: float) -> list[float]:
     _validate_pose("pose", pose)
     updated = pose.copy()
     updated[5] = gripper_angle
+    return updated
+
+
+def with_servo_angle(
+    pose: list[float],
+    servo_index: int,
+    servo_angle: float,
+    gripper_angle: float | None = None,
+) -> list[float]:
+    _validate_pose("pose", pose)
+    updated = pose.copy()
+    updated[servo_index] = servo_angle
+    if gripper_angle is not None:
+        updated[5] = gripper_angle
     return updated
 
 
