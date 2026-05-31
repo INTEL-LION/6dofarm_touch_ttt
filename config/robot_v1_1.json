@@ -1,0 +1,12 @@
+{
+  "mode": "arduino_serial",
+  "port": "COM3",
+  "baud_rate": 9600,
+  "timeout_seconds": 2,
+  "move_delay_seconds": 1.25,
+  "startup_delay_seconds": 2.5,
+  "dry_run": false,
+  "motion_profile": "v1.1 Arduino vibration-reduced profile",
+  "ros2_enabled": false
+}
+

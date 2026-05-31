@@ -113,3 +113,25 @@ Switch the game UI between command-only and real robot movement:
 python tools/set_robot_mode.py dry-run
 python tools/set_robot_mode.py real
 ```
+
+## v1.1 Motion-Stability Version
+
+v1.1 keeps the existing Python UI and tic-tac-toe logic, but uses a separated Arduino sketch with vibration-reduced motion, joint-specific speed limits, and gripper settle timing.
+
+Upload v1.1:
+
+```powershell
+.\run_upload_arduino_uno_v1_1.bat
+```
+
+Design notes:
+
+```text
+v1_1/V1_1_DESIGN.md
+```
+
+Optional ROS2 bridge skeleton:
+
+```powershell
+.\run_ros2_bridge_v1_1.bat
+```
