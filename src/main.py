@@ -143,12 +143,12 @@ class TicTacToeRobotApp:
         self._action_button(actions, "1. 로봇 연결", self._connect_robot, PALETTE["primary"]).pack(fill=tk.X, pady=4)
         self._action_button(actions, "2. 다음 수 예측", self._predict_robot_move, PALETTE["teal"]).pack(fill=tk.X, pady=4)
         self._action_button(actions, "3. 추천 칸 선택", self._select_recommended_robot_move, PALETTE["coral"]).pack(fill=tk.X, pady=4)
-        self._action_button(actions, "4. 선택 칸 로봇 터치", self._execute_robot_touch, PALETTE["primary_dark"]).pack(fill=tk.X, pady=4)
+        self._action_button(actions, "4. 선택 칸에 말 놓기", self._execute_robot_touch, PALETTE["primary_dark"]).pack(fill=tk.X, pady=4)
 
         utility = tk.Frame(right, bg=PALETTE["surface"], pady=8)
         utility.pack(fill=tk.X)
         self._secondary_button(utility, "로봇 선공 준비", self._prepare_robot_first).pack(fill=tk.X, pady=3)
-        self._secondary_button(utility, "전체 보정 좌표 확인", self._show_all_calibration).pack(fill=tk.X, pady=3)
+        self._secondary_button(utility, "전체 픽앤플레이스 경로 확인", self._show_all_calibration).pack(fill=tk.X, pady=3)
         self._secondary_button(utility, "새 게임", self._new_game).pack(fill=tk.X, pady=3)
 
         tk.Label(right, text="로봇 로그", bg=PALETTE["surface"], fg=PALETTE["ink"], font=("맑은 고딕", 14, "bold")).pack(anchor="w", pady=(14, 5))
@@ -375,4 +375,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

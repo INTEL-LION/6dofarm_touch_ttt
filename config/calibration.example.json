@@ -3,6 +3,11 @@
   "units": "servo_degrees",
   "servo_order": ["base", "shoulder", "elbow", "wrist_rotate", "wrist_tilt", "gripper"],
   "gripper_rule": "servo 6 is clamped to 0..90; 90 is closed, lower values open the gripper",
+  "piece_source": {
+    "approach_pose": [],
+    "pick_pose": [],
+    "lift_pose": []
+  },
   "cells": {
     "0": {
       "approach_pose": [70, 75, 105, 90, 85, 90],
@@ -42,4 +47,3 @@
     }
   }
 }
-

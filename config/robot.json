@@ -3,7 +3,7 @@
   "port": "COM3",
   "baud_rate": 9600,
   "timeout_seconds": 2,
-  "move_delay_seconds": 0.8,
+  "move_delay_seconds": 1.1,
   "startup_delay_seconds": 2.5,
   "dry_run": false
 }

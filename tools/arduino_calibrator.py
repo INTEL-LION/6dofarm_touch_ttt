@@ -132,10 +132,36 @@ class CalibratorApp:
             side=tk.LEFT,
             padx=4,
         )
+        tk.Button(save_frame, text="Save Hover Pose", command=lambda: self._save_pose("hover_pose")).pack(
+            side=tk.LEFT,
+            padx=4,
+        )
+        tk.Button(save_frame, text="Save Exit Pose", command=lambda: self._save_pose("exit_pose")).pack(
+            side=tk.LEFT,
+            padx=4,
+        )
         tk.Button(save_frame, text="Save Touch Pose", command=lambda: self._save_pose("touch_pose")).pack(
             side=tk.LEFT,
             padx=4,
         )
+
+        source_frame = tk.LabelFrame(main, text="Save Piece Storage Position")
+        source_frame.pack(fill=tk.X, pady=(4, 8))
+        tk.Button(
+            source_frame,
+            text="Save Piece Approach Pose",
+            command=lambda: self._save_piece_source_pose("approach_pose"),
+        ).pack(side=tk.LEFT, padx=8, pady=8)
+        tk.Button(
+            source_frame,
+            text="Save Piece Pick Pose",
+            command=lambda: self._save_piece_source_pose("pick_pose"),
+        ).pack(side=tk.LEFT, padx=4, pady=8)
+        tk.Button(
+            source_frame,
+            text="Save Piece Lift Pose",
+            command=lambda: self._save_piece_source_pose("lift_pose"),
+        ).pack(side=tk.LEFT, padx=4, pady=8)
 
         note = tk.Text(main, height=8, wrap=tk.WORD)
         note.pack(fill=tk.BOTH, expand=True, pady=(12, 0))
@@ -145,9 +171,11 @@ class CalibratorApp:
             "1. Close Arduino Serial Monitor.\n"
             "2. Click Connect.\n"
             "3. Use Jog buttons to move one servo at a time.\n"
-            "4. Save a safe approach pose for the selected cell.\n"
-            "5. Move lightly to the board cell center and save the touch pose.\n"
-            "6. Servo 6 is the gripper and is limited by Arduino to 0..90 degrees.\n",
+            "4. Save a high hover pose for the selected cell.\n"
+            "5. Save the approach pose where the piece should be released.\n"
+            "6. Move lightly to the board cell center and save the touch pose only if needed.\n"
+            "7. Move to the piece storage area and save piece approach/pick/lift poses.\n"
+            "8. Servo 6 is the gripper and is limited by Arduino to 0..90 degrees.\n",
         )
         note.configure(state=tk.DISABLED)
 
@@ -194,6 +222,12 @@ class CalibratorApp:
         CALIBRATION_PATH.write_text(json.dumps(self.calibration, indent=2), encoding="utf-8")
         self.status_var.set(f"Saved cell {cell} {pose_name}: {self.current_angles}")
 
+    def _save_piece_source_pose(self, pose_name: str) -> None:
+        source_data = self.calibration.setdefault("piece_source", {})
+        source_data[pose_name] = self.current_angles.copy()
+        CALIBRATION_PATH.write_text(json.dumps(self.calibration, indent=2), encoding="utf-8")
+        self.status_var.set(f"Saved piece_source {pose_name}: {self.current_angles}")
+
     def _update_angles(self) -> None:
         self.angles_var.set("Current angles: " + ", ".join(str(angle) for angle in self.current_angles))
 
@@ -210,4 +244,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

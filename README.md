@@ -2,6 +2,8 @@
 
 This project controls a tic-tac-toe workflow where the computer calculates the robot move and a 6-axis robot arm only touches the selected physical board cell.
 
+The current improved version can also run a pick-and-place path: it opens the gripper at the piece source, picks a mark, moves to the selected cell, releases the mark, and returns home.
+
 ## Run the UI
 
 ```powershell
@@ -69,6 +71,12 @@ arduino_connection_tasks.md
 ```
 
 The PC calculates the tic-tac-toe move and sends only six servo angles to the Arduino.
+
+To upload the included Uno sketch on this Windows setup:
+
+```powershell
+.\run_upload_arduino_uno.bat
+```
 
 Arduino Serial Monitor is not needed after upload. Use these Python tools instead:
 

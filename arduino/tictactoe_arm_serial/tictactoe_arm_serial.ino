@@ -15,7 +15,7 @@
 
 const int SERVOS = 6;
 const int BAUD_RATE = 9600;
-const int STEP_DELAY_MS = 21;
+const int STEP_DELAY_MS = 35;
 const int HOLD_DELAY_MS = 150;
 
 int PIN[SERVOS] = {3, 2, 9, 8, 4, 5};

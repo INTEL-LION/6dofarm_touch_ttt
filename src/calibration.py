@@ -15,9 +15,24 @@ EXAMPLE_PATH = CONFIG_DIR / "calibration.example.json"
 class CellPose:
     approach_pose: list[float]
     touch_pose: list[float]
+    hover_pose: list[float]
+    exit_pose: list[float]
 
 
-def load_calibration(path: Path = CALIBRATION_PATH) -> dict[int, CellPose]:
+@dataclass(frozen=True)
+class PieceSourcePose:
+    approach_pose: list[float]
+    pick_pose: list[float]
+    lift_pose: list[float]
+
+
+@dataclass(frozen=True)
+class Calibration:
+    cells: dict[int, CellPose]
+    piece_source: PieceSourcePose
+
+
+def load_calibration(path: Path = CALIBRATION_PATH) -> Calibration:
     if not path.exists():
         path = EXAMPLE_PATH
 
@@ -29,22 +44,30 @@ def load_calibration(path: Path = CALIBRATION_PATH) -> dict[int, CellPose]:
         calibration[cell] = CellPose(
             approach_pose=[float(item) for item in value["approach_pose"]],
             touch_pose=[float(item) for item in value["touch_pose"]],
+            hover_pose=[float(item) for item in value.get("hover_pose", [])],
+            exit_pose=[float(item) for item in value.get("exit_pose", [])],
         )
 
     missing = set(range(9)) - set(calibration)
     if missing:
         raise ValueError(f"Calibration is missing cells: {sorted(missing)}")
 
-    return calibration
+    piece_source_data = data.get("piece_source", {})
+    piece_source = PieceSourcePose(
+        approach_pose=[float(item) for item in piece_source_data.get("approach_pose", [])],
+        pick_pose=[float(item) for item in piece_source_data.get("pick_pose", [])],
+        lift_pose=[float(item) for item in piece_source_data.get("lift_pose", [])],
+    )
+
+    return Calibration(cells=calibration, piece_source=piece_source)
 
 
 def pose_summary(cell: int, pose: CellPose) -> str:
     return (
         f"cell {cell}: approach={_fmt_pose(pose.approach_pose)}, "
-        f"touch={_fmt_pose(pose.touch_pose)}"
+        f"touch={_fmt_pose(pose.touch_pose)}, hover={_fmt_pose(pose.hover_pose)}"
     )
 
 
 def _fmt_pose(values: list[float]) -> str:
     return "[" + ", ".join(f"{value:.1f}" for value in values) + "]"
-

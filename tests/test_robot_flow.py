@@ -5,20 +5,43 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from calibration import load_calibration
-from robot_arm import MockRobotArm, format_servo_command
+from robot_arm import (
+    MockRobotArm,
+    build_pick_and_place_sequence,
+    format_servo_command,
+)
 
 
 class RobotFlowTest(unittest.TestCase):
     def test_calibration_loads_all_nine_cells(self):
         calibration = load_calibration()
-        self.assertEqual(set(calibration), set(range(9)))
+        self.assertEqual(set(calibration.cells), set(range(9)))
+        self.assertEqual(len(calibration.piece_source.approach_pose), 6)
+        self.assertEqual(len(calibration.piece_source.pick_pose), 6)
+        self.assertEqual(len(calibration.piece_source.lift_pose), 6)
 
-    def test_mock_robot_reports_selected_cell_and_sequence(self):
+    def test_mock_robot_reports_selected_cell_and_pick_place_sequence(self):
         calibration = load_calibration()
         robot = MockRobotArm()
         result = robot.touch_cell(4, calibration, dry_run=True)
         self.assertIn("cell 4", result.message)
-        self.assertIn("home -> approach -> touch -> approach -> home", result.message)
+        self.assertIn("pick -> lift -> cell approach -> place", result.message)
+
+    def test_pick_and_place_sequence_opens_and_closes_gripper(self):
+        sequence = build_pick_and_place_sequence(
+            home_pose=[90, 90, 90, 90, 90, 90],
+            piece_approach_pose=[1, 2, 3, 4, 5, 60],
+            piece_pick_pose=[6, 7, 8, 9, 10, 60],
+            piece_lift_pose=[],
+            cell_hover_pose=[],
+            cell_approach_pose=[11, 12, 13, 14, 15, 90],
+            cell_place_pose=[16, 17, 18, 19, 20, 90],
+            cell_exit_pose=[],
+        )
+        self.assertEqual(sequence[1], ("piece approach open", [1, 2, 3, 4, 5, 40.0]))
+        self.assertEqual(sequence[3], ("piece pick close", [6, 7, 8, 9, 10, 90.0]))
+        self.assertEqual(sequence[5], ("cell hover holding", [11, 12, 13, 14, 15, 90.0]))
+        self.assertEqual(sequence[8], ("cell release", [16, 17, 18, 19, 20, 40.0]))
 
     def test_servo_command_clamps_gripper_to_closed_limit(self):
         command = format_servo_command([90, 91, 92, 93, 94, 120])
