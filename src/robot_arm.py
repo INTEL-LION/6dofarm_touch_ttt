@@ -219,8 +219,7 @@ def build_pick_and_place_sequence(
         ("cell approach holding", with_gripper(cell_approach_pose, CLOSED_GRIPPER_ANGLE)),
         ("cell place holding", with_gripper(cell_place_pose, CLOSED_GRIPPER_ANGLE)),
         ("cell release", with_gripper(cell_place_pose, OPEN_GRIPPER_ANGLE)),
-        ("cell exit open", with_gripper(cell_exit_pose, OPEN_GRIPPER_ANGLE)),
-        ("cell lift open", with_gripper(cell_hover_pose, OPEN_GRIPPER_ANGLE)),
+        ("cell vertical lift open", with_gripper(cell_exit_pose, OPEN_GRIPPER_ANGLE)),
         ("home", home_pose),
     ]
 
