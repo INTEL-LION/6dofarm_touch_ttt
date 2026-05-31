@@ -135,3 +135,19 @@ Optional ROS2 bridge skeleton:
 ```powershell
 .\run_ros2_bridge_v1_1.bat
 ```
+
+## v1.2 Smooth-Motion Version
+
+v1.2 keeps the same Python UI and tic-tac-toe logic, but replaces the Arduino motion planner with coordinated smootherstep interpolation. This is intended to reduce the choppy movement seen after the board-transit waypoint and before gripper release.
+
+Upload v1.2:
+
+```powershell
+.\run_upload_arduino_uno_v1_2.bat
+```
+
+Design notes:
+
+```text
+v1_2/V1_2_DESIGN.md
+```
