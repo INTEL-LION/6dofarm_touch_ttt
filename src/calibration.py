@@ -17,6 +17,7 @@ class CellPose:
     touch_pose: list[float]
     hover_pose: list[float]
     exit_pose: list[float]
+    clear_pose: list[float]
 
 
 @dataclass(frozen=True)
@@ -46,6 +47,7 @@ def load_calibration(path: Path = CALIBRATION_PATH) -> Calibration:
             touch_pose=[float(item) for item in value["touch_pose"]],
             hover_pose=[float(item) for item in value.get("hover_pose", [])],
             exit_pose=[float(item) for item in value.get("exit_pose", [])],
+            clear_pose=[float(item) for item in value.get("clear_pose", [])],
         )
 
     missing = set(range(9)) - set(calibration)
@@ -65,7 +67,8 @@ def load_calibration(path: Path = CALIBRATION_PATH) -> Calibration:
 def pose_summary(cell: int, pose: CellPose) -> str:
     return (
         f"cell {cell}: approach={_fmt_pose(pose.approach_pose)}, "
-        f"touch={_fmt_pose(pose.touch_pose)}, hover={_fmt_pose(pose.hover_pose)}"
+        f"touch={_fmt_pose(pose.touch_pose)}, hover={_fmt_pose(pose.hover_pose)}, "
+        f"exit={_fmt_pose(pose.exit_pose)}, clear={_fmt_pose(pose.clear_pose)}"
     )
 
 

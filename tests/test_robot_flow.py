@@ -59,6 +59,21 @@ class RobotFlowTest(unittest.TestCase):
         self.assertEqual(sequence[9], ("cell vertical lift open", [5, 110, 110, 90, 90, 40.0]))
         self.assertNotIn(("cell lift open", [25, 110, 110, 90, 90, 40.0]), sequence)
 
+    def test_release_path_uses_clear_pose_before_home(self):
+        sequence = build_pick_and_place_sequence(
+            home_pose=[90, 90, 90, 90, 90, 90],
+            piece_approach_pose=[60, 163, 130, 180, 63, 60],
+            piece_pick_pose=[60, 159, 153, 170, 75, 90],
+            piece_lift_pose=[75, 163, 125, 180, 63, 90],
+            cell_hover_pose=[25, 110, 110, 90, 90, 90],
+            cell_approach_pose=[5, 104, 107, 90, 90, 90],
+            cell_place_pose=[5, 104, 107, 90, 90, 90],
+            cell_exit_pose=[5, 110, 110, 90, 90, 90],
+            cell_clear_pose=[5, 140, 140, 90, 90, 90],
+        )
+        self.assertEqual(sequence[10], ("cell clear open", [5, 140, 140, 90, 90, 40.0]))
+        self.assertEqual(sequence[11], ("home", [90, 90, 90, 90, 90, 90]))
+
     def test_servo_command_clamps_gripper_to_closed_limit(self):
         command = format_servo_command([90, 91, 92, 93, 94, 120])
         self.assertEqual(command, "M 90,91,92,93,94,90")

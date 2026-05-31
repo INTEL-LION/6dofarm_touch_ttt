@@ -151,6 +151,7 @@ class ArduinoSerialRobotArm:
             cell_approach_pose=pose.approach_pose,
             cell_place_pose=pose.approach_pose,
             cell_exit_pose=pose.exit_pose,
+            cell_clear_pose=pose.clear_pose,
         )
 
         timestamp = datetime.now().strftime("%H:%M:%S")
@@ -191,6 +192,7 @@ def build_pick_and_place_sequence(
     cell_approach_pose: list[float],
     cell_place_pose: list[float],
     cell_exit_pose: list[float],
+    cell_clear_pose: list[float] | None = None,
 ) -> list[tuple[str, list[float]]]:
     _validate_pose("piece_source.approach_pose", piece_approach_pose)
     _validate_pose("piece_source.pick_pose", piece_pick_pose)
@@ -206,6 +208,10 @@ def build_pick_and_place_sequence(
         _validate_pose("cell.exit_pose", cell_exit_pose)
     else:
         cell_exit_pose = cell_hover_pose
+    if cell_clear_pose:
+        _validate_pose("cell.clear_pose", cell_clear_pose)
+    else:
+        cell_clear_pose = cell_exit_pose
     _validate_pose("cell.approach_pose", cell_approach_pose)
     _validate_pose("cell.place_pose", cell_place_pose)
 
@@ -220,6 +226,7 @@ def build_pick_and_place_sequence(
         ("cell place holding", with_gripper(cell_place_pose, CLOSED_GRIPPER_ANGLE)),
         ("cell release", with_gripper(cell_place_pose, OPEN_GRIPPER_ANGLE)),
         ("cell vertical lift open", with_gripper(cell_exit_pose, OPEN_GRIPPER_ANGLE)),
+        ("cell clear open", with_gripper(cell_clear_pose, OPEN_GRIPPER_ANGLE)),
         ("home", home_pose),
     ]
 

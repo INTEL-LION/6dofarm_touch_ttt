@@ -140,6 +140,10 @@ class CalibratorApp:
             side=tk.LEFT,
             padx=4,
         )
+        tk.Button(save_frame, text="Save Clear Pose", command=lambda: self._save_pose("clear_pose")).pack(
+            side=tk.LEFT,
+            padx=4,
+        )
         tk.Button(save_frame, text="Save Touch Pose", command=lambda: self._save_pose("touch_pose")).pack(
             side=tk.LEFT,
             padx=4,
@@ -173,9 +177,10 @@ class CalibratorApp:
             "3. Use Jog buttons to move one servo at a time.\n"
             "4. Save a high hover pose for the selected cell.\n"
             "5. Save the approach pose where the piece should be released.\n"
-            "6. Move lightly to the board cell center and save the touch pose only if needed.\n"
-            "7. Move to the piece storage area and save piece approach/pick/lift poses.\n"
-            "8. Servo 6 is the gripper and is limited by Arduino to 0..90 degrees.\n",
+            "6. For cells that hit the ring, save exit and clear poses with the same base angle.\n"
+            "7. Move lightly to the board cell center and save the touch pose only if needed.\n"
+            "8. Move to the piece storage area and save piece approach/pick/lift poses.\n"
+            "9. Servo 6 is the gripper and is limited by Arduino to 0..90 degrees.\n",
         )
         note.configure(state=tk.DISABLED)
 

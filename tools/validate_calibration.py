@@ -21,9 +21,9 @@ def main() -> int:
             errors.append(f"cell {cell}: missing")
             continue
 
-        for pose_name in ("approach_pose", "touch_pose", "hover_pose", "exit_pose"):
+        for pose_name in ("approach_pose", "touch_pose", "hover_pose", "exit_pose", "clear_pose"):
             pose = cell_data.get(pose_name)
-            if pose_name in ("hover_pose", "exit_pose") and pose is None:
+            if pose_name in ("hover_pose", "exit_pose", "clear_pose") and pose is None:
                 continue
             if not isinstance(pose, list) or len(pose) != 6:
                 errors.append(f"cell {cell} {pose_name}: must contain 6 servo angles")
