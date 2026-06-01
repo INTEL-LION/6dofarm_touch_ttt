@@ -4,6 +4,7 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.test_bags/
 
 # Arduino / build outputs
 build/
@@ -18,6 +19,7 @@ Thumbs.db
 
 # Local runtime logs
 *.log
+bags/
 
 # Local comparison/archive copies
 archive/

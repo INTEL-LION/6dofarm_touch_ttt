@@ -25,6 +25,7 @@ v1.2 changes the Arduino motion planner:
 - interpolation uses smootherstep easing
 - heavy joints increase total duration instead of skipping updates
 - gripper-only moves are staged slowly with settle delay
+- Python sends `V 50` only for the cell pre-place approach moves, then `V 100` before release
 
 This should look smoother because the robot no longer pauses individual joints between skipped steps.
 
@@ -34,6 +35,8 @@ This should look smoother because the robot no longer pauses individual joints b
 const int FRAME_DELAY_MS = 20;
 const int MIN_MOVE_DURATION_MS = 450;
 const int MAX_MOVE_DURATION_MS = 6500;
+const int MIN_SPEED_PERCENT = 10;
+const int MAX_SPEED_PERCENT = 100;
 const int HOLD_DELAY_MS = 220;
 const int GRIPPER_FRAME_DELAY_MS = 35;
 const int GRIPPER_SETTLE_DELAY_MS = 450;
@@ -60,15 +63,21 @@ cd C:\Users\npgy2\.anaconda\intellion
 
 ## Python Compatibility
 
-The serial command protocol is unchanged:
+The serial command protocol now supports an optional speed command:
 
 ```text
+V 50
 M a,b,c,d,e,f
 ```
 
-So the existing Python UI and tic-tac-toe logic can be used after uploading the v1.2 Arduino sketch.
+`V 50` makes later joint moves run at 50% speed by doubling the motion duration. The Python robot controller applies it only to:
+
+- `cell hover holding`
+- `cell approach holding`
+- `cell place holding`
+
+It sends `V 100` before `cell release`, so the slower speed is limited to the route where the robot carries the piece into the target cell.
 
 ## ROS2 Note
 
 ROS2 is still optional. v1.2 focuses on motion quality. The ROS2 bridge skeleton from v1.1 can still be used later for telemetry, but it is not required for smoother motion.
-

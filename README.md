@@ -140,6 +140,8 @@ Optional ROS2 bridge skeleton:
 
 v1.2 keeps the same Python UI and tic-tac-toe logic, but replaces the Arduino motion planner with coordinated smootherstep interpolation. This is intended to reduce the choppy movement seen after the board-transit waypoint and before gripper release.
 
+The current v1.2 Python controller sends `V 50` only for the cell pre-place path (`cell hover holding`, `cell approach holding`, `cell place holding`) and restores `V 100` before gripper release.
+
 Upload v1.2:
 
 ```powershell
@@ -150,4 +152,28 @@ Design notes:
 
 ```text
 v1_2/V1_2_DESIGN.md
+```
+
+## v1.3 Bag and Analysis Version
+
+v1.3 builds on v1.2 and adds game/session recording. In the UI, turn on `v1.3 Bag 기록 ON/OFF`, start a new game, then click `Bag 결과 시각화` after one or more robot moves.
+
+It writes local analysis files under:
+
+```text
+bags/v1_3_bag_YYYYMMDD_HHMMSS/
+```
+
+Each bag contains ROS2-style events, servo target CSV, and an HTML graph:
+
+```text
+events.jsonl
+servo_steps.csv
+analysis.html
+```
+
+For WSL ROS2 replay and real `ros2 bag record` usage:
+
+```text
+v1_3/V1_3_DESIGN.md
 ```

@@ -14,6 +14,13 @@ ROBOT_CONFIG_PATH = ROOT / "config" / "robot.json"
 OPEN_GRIPPER_ANGLE = 40.0
 CLOSED_GRIPPER_ANGLE = 90.0
 BOARD_TRANSIT_SERVO2_ANGLE = 90.0
+NORMAL_SPEED_PERCENT = 100
+PRE_PLACE_SPEED_PERCENT = 50
+PRE_PLACE_SLOW_STEPS = {
+    "cell hover holding",
+    "cell approach holding",
+    "cell place holding",
+}
 
 
 @dataclass
@@ -21,6 +28,7 @@ class RobotCommandResult:
     cell: int
     dry_run: bool
     message: str
+    steps: list[dict] | None = None
 
 
 def load_robot_config(path: Path = ROBOT_CONFIG_PATH) -> dict:
@@ -72,7 +80,7 @@ class MockRobotArm:
             pose_summary(cell, pose),
             "sequence: home -> piece approach -> pick -> lift -> cell approach -> place -> release -> home",
         ]
-        return RobotCommandResult(cell=cell, dry_run=dry_run, message="\n".join(lines))
+        return RobotCommandResult(cell=cell, dry_run=dry_run, message="\n".join(lines), steps=[])
 
 
 class ArduinoSerialRobotArm:
@@ -154,14 +162,19 @@ class ArduinoSerialRobotArm:
             cell_exit_pose=pose.exit_pose,
             cell_clear_pose=pose.clear_pose,
         )
+        step_trace = build_sequence_step_trace(sequence, dry_run=dry_run)
 
         timestamp = datetime.now().strftime("%H:%M:%S")
         lines = [f"[{timestamp}] ARDUINO SERIAL: cell {cell} on {self.port}"]
 
         if dry_run:
             for name, angles in sequence:
+                if is_pre_place_slow_step(name):
+                    lines.append(f"dry-run speed: {format_speed_command(PRE_PLACE_SPEED_PERCENT)}")
+                elif is_release_step(name):
+                    lines.append(f"dry-run speed: {format_speed_command(NORMAL_SPEED_PERCENT)}")
                 lines.append(f"dry-run {name}: {format_servo_command(angles)}")
-            return RobotCommandResult(cell=cell, dry_run=True, message="\n".join(lines))
+            return RobotCommandResult(cell=cell, dry_run=True, message="\n".join(lines), steps=step_trace)
 
         connection = self.connect()
         ready = _send_command(connection, "PING", "OK PONG")
@@ -169,12 +182,21 @@ class ArduinoSerialRobotArm:
         angles = _send_command(connection, "Q", "OK ANGLES")
         lines.append(f"current: Q -> {angles}")
         for name, angles in sequence:
+            if is_pre_place_slow_step(name):
+                speed_command = format_speed_command(PRE_PLACE_SPEED_PERCENT)
+                speed_response = _send_command(connection, speed_command, "OK SPEED")
+                lines.append(f"speed before {name}: {speed_command} -> {speed_response}")
+            elif is_release_step(name):
+                speed_command = format_speed_command(NORMAL_SPEED_PERCENT)
+                speed_response = _send_command(connection, speed_command, "OK SPEED")
+                lines.append(f"speed before {name}: {speed_command} -> {speed_response}")
+
             command = format_servo_command(angles)
             response = _send_command(connection, command, "OK MOVE")
             lines.append(f"{name}: {command} -> {response}")
             time.sleep(self.move_delay_seconds)
 
-        return RobotCommandResult(cell=cell, dry_run=False, message="\n".join(lines))
+        return RobotCommandResult(cell=cell, dry_run=False, message="\n".join(lines), steps=step_trace)
 
 
 def is_piece_source_ready(calibration: Calibration) -> bool:
@@ -233,6 +255,25 @@ def build_pick_and_place_sequence(
     ]
 
 
+def build_sequence_step_trace(sequence: list[tuple[str, list[float]]], dry_run: bool) -> list[dict]:
+    speed_percent = NORMAL_SPEED_PERCENT
+    steps = []
+    for name, angles in sequence:
+        if is_pre_place_slow_step(name):
+            speed_percent = PRE_PLACE_SPEED_PERCENT
+        elif is_release_step(name):
+            speed_percent = NORMAL_SPEED_PERCENT
+        steps.append(
+            {
+                "name": name,
+                "angles": [_clamp_angle(index, angle) for index, angle in enumerate(angles)],
+                "speed_percent": speed_percent,
+                "dry_run": dry_run,
+            }
+        )
+    return steps
+
+
 def with_gripper(pose: list[float], gripper_angle: float) -> list[float]:
     _validate_pose("pose", pose)
     updated = pose.copy()
@@ -254,6 +295,14 @@ def with_servo_angle(
     return updated
 
 
+def is_pre_place_slow_step(name: str) -> bool:
+    return name in PRE_PLACE_SLOW_STEPS
+
+
+def is_release_step(name: str) -> bool:
+    return name == "cell release"
+
+
 def _validate_pose(name: str, pose: list[float]) -> None:
     if len(pose) != 6:
         raise ValueError(
@@ -267,6 +316,11 @@ def format_servo_command(angles: list[float]) -> str:
         raise ValueError(f"Expected 6 servo angles, got {len(angles)}")
     bounded = [_clamp_angle(index, angle) for index, angle in enumerate(angles)]
     return "M " + ",".join(str(angle) for angle in bounded)
+
+
+def format_speed_command(speed_percent: int) -> str:
+    value = max(10, min(100, int(speed_percent)))
+    return f"V {value}"
 
 
 def _clamp_angle(index: int, angle: float) -> int:

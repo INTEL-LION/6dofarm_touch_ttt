@@ -13,6 +13,7 @@
 //   H
 //   Q
 //   J 1,5
+//   V 50
 //   M 90,90,90,90,90,60
 
 #include <Servo.h>
@@ -23,6 +24,8 @@ const int BAUD_RATE = 9600;
 const int FRAME_DELAY_MS = 20;
 const int MIN_MOVE_DURATION_MS = 450;
 const int MAX_MOVE_DURATION_MS = 6500;
+const int MIN_SPEED_PERCENT = 10;
+const int MAX_SPEED_PERCENT = 100;
 const int HOLD_DELAY_MS = 220;
 const int GRIPPER_FRAME_DELAY_MS = 35;
 const int GRIPPER_SETTLE_DELAY_MS = 450;
@@ -36,6 +39,7 @@ int MIN_ANGLE[SERVOS] = {0, 0, 0, 0, 0, 0};
 int MAX_ANGLE[SERVOS] = {180, 180, 180, 180, 180, 90};
 int HOME_ANGLE[SERVOS] = {90, 90, 90, 90, 90, 90};
 int currentAngle[SERVOS] = {90, 90, 90, 90, 90, 90};
+int currentSpeedPercent = 100;
 
 Servo myservo[SERVOS];
 
@@ -86,6 +90,17 @@ void loop() {
       return;
     }
     printCurrentAngles();
+    return;
+  }
+
+  if (line.startsWith("V ")) {
+    bool parsed = setSpeedPercent(line.substring(2));
+    if (!parsed) {
+      Serial.println("ERR BAD_SPEED");
+      return;
+    }
+    Serial.print("OK SPEED ");
+    Serial.println(currentSpeedPercent);
     return;
   }
 
@@ -160,6 +175,21 @@ bool parseMoveCommand(String payload, int target[]) {
   return true;
 }
 
+bool setSpeedPercent(String payload) {
+  payload.trim();
+  if (payload.length() == 0) {
+    return false;
+  }
+
+  int speed = payload.toInt();
+  if (speed < MIN_SPEED_PERCENT || speed > MAX_SPEED_PERCENT) {
+    return false;
+  }
+
+  currentSpeedPercent = speed;
+  return true;
+}
+
 int clampAngle(int servoIndex, int angle) {
   if (angle < MIN_ANGLE[servoIndex]) {
     return MIN_ANGLE[servoIndex];
@@ -201,6 +231,8 @@ void moveToAngles(int target[]) {
     duration = MAX_MOVE_DURATION_MS;
   }
 
+  duration = scaleDurationForSpeed(duration);
+
   int frames = duration / FRAME_DELAY_MS;
   if (frames < 1) {
     frames = 1;
@@ -231,6 +263,20 @@ void moveToAngles(int target[]) {
   if (target[5] != startAngle[5]) {
     delay(GRIPPER_SETTLE_DELAY_MS);
   }
+}
+
+int scaleDurationForSpeed(int duration) {
+  long scaled = ((long)duration * 100L) / (long)currentSpeedPercent;
+  long maxScaled = ((long)MAX_MOVE_DURATION_MS * 100L) / (long)currentSpeedPercent;
+
+  if (scaled < MIN_MOVE_DURATION_MS) {
+    scaled = MIN_MOVE_DURATION_MS;
+  }
+  if (scaled > maxScaled) {
+    scaled = maxScaled;
+  }
+
+  return (int)scaled;
 }
 
 bool allAtTarget(int target[]) {
@@ -289,4 +335,3 @@ void printCurrentAngles() {
   }
   Serial.println();
 }
-

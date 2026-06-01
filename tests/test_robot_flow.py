@@ -8,7 +8,10 @@ from calibration import load_calibration
 from robot_arm import (
     MockRobotArm,
     build_pick_and_place_sequence,
+    build_sequence_step_trace,
     format_servo_command,
+    format_speed_command,
+    is_pre_place_slow_step,
     with_servo_angle,
 )
 
@@ -83,6 +86,29 @@ class RobotFlowTest(unittest.TestCase):
     def test_servo_command_clamps_gripper_to_closed_limit(self):
         command = format_servo_command([90, 91, 92, 93, 94, 120])
         self.assertEqual(command, "M 90,91,92,93,94,90")
+
+    def test_speed_command_clamps_to_supported_range(self):
+        self.assertEqual(format_speed_command(50), "V 50")
+        self.assertEqual(format_speed_command(5), "V 10")
+        self.assertEqual(format_speed_command(150), "V 100")
+
+    def test_only_pre_place_steps_are_slowed(self):
+        self.assertTrue(is_pre_place_slow_step("cell hover holding"))
+        self.assertTrue(is_pre_place_slow_step("cell approach holding"))
+        self.assertTrue(is_pre_place_slow_step("cell place holding"))
+        self.assertFalse(is_pre_place_slow_step("piece lift"))
+        self.assertFalse(is_pre_place_slow_step("cell release"))
+
+    def test_sequence_step_trace_marks_pre_place_speed_only(self):
+        sequence = [
+            ("piece lift", [1, 2, 3, 4, 5, 90]),
+            ("cell hover holding", [6, 7, 8, 9, 10, 90]),
+            ("cell approach holding", [11, 12, 13, 14, 15, 90]),
+            ("cell place holding", [16, 17, 18, 19, 20, 90]),
+            ("cell release", [16, 17, 18, 19, 20, 40]),
+        ]
+        trace = build_sequence_step_trace(sequence, dry_run=True)
+        self.assertEqual([step["speed_percent"] for step in trace], [100, 50, 50, 50, 100])
 
 
 if __name__ == "__main__":
